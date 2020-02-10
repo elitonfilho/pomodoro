@@ -21,9 +21,9 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
-from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt, pyqtSlot
+from qgis.PyQt.QtGui import QIcon, QPixmap
+from qgis.PyQt.QtWidgets import QAction, QGraphicsGridLayout, QGraphicsScene, QLabel, QVBoxLayout
 from PyQt5 import QtCore
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -190,6 +190,23 @@ class Pomodoro:
     def updateLCD(self):
         self.dockwidget.lcdNumber.display(self._thread.lcdString())
 
+    def updateHistoric(self):
+        vbox = QVBoxLayout()
+        for _id, item in enumerate(self._thread.session['historic']):
+            label = QLabel()
+            if item:
+                label.setPixmap(self.dockwidget.sucess)
+                vbox.addWidget(label)
+                vbox.addStretch()
+                # self.dockwidget.label.setPixmap(self.dockwidget.sucess)
+            else:
+                label.setPixmap(self.dockwidget.fail)
+                vbox.addWidget(label)
+                vbox.addStretch()
+                # self.dockwidget.label.setPixmap(self.dockwidget.fail)
+        self.dockwidget.widget.setLayout(vbox)
+        print(self._thread.session)
+
     def run(self):
         """Run method that loads and starts the plugin"""
 
@@ -208,7 +225,9 @@ class Pomodoro:
             # connect button to refresh Pomodoro 
             self.dockwidget.pushButton.clicked.connect(self._thread.refreshPomodoro)
             # connect pyqtsignal to refresh screen 
-            self._thread.valueChanged.connect(self.updateLCD)
+            self._thread.updateTimer.connect(self.updateLCD)
+            # connect pyqtsignal to refresh historic
+            self._thread.updateHistoric.connect(self.updateHistoric)
             # show the dockwidget
             # TODO: fix to allow choice of dock location
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)

@@ -1,23 +1,35 @@
 import time
 from datetime import date, timedelta
 from PyQt5.QtCore import QThread, pyqtSignal
+from qgis.core import QgsSettings
 
 class HandlePomodoro(QThread):
 
-    valueChanged = pyqtSignal(int)
+    updateTimer = pyqtSignal(int)
+    updateHistoric = pyqtSignal(list)
 
     def __init__(self, parent=None):
         super(HandlePomodoro, self).__init__(parent)
         self.running = True
         self.duration = 120
         self.today = date.today
+        self.session = {
+            'historic' : []
+        }
+
+        # Reads old settings
+        s = QgsSettings()
+
 
     def run(self):
+        if not self.duration:
+            self.session['historic'].append(True)
+            self.updateHistoric.emit(self.session['historic'])
         while self.running and self.duration:
             print('thread id', int(QThread.currentThreadId()))
             for i in range(self.duration):
                 print('value', i)
-                self.valueChanged.emit(i)
+                self.updateTimer.emit(i)
                 self.duration -= 1
                 QThread.sleep(1)
 
@@ -25,7 +37,13 @@ class HandlePomodoro(QThread):
         self.running = ~self.running
 
     def refreshPomodoro(self):
+        if self.duration:
+            self.session['historic'].append(False)
+        elif not self.duration:
+            self.session['historic'].append(True)
         self.duration = 120
+        self.updateHistoric.emit(self.session['historic'])
+        print(self.session)
 
     def lcdString(self):
         return f'{self.duration // 60}:{self.duration % 60}'

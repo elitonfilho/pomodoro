@@ -25,7 +25,9 @@
 import os
 
 from qgis.PyQt import QtGui, QtWidgets, uic
-from qgis.PyQt.QtCore import pyqtSignal
+from qgis.PyQt.QtCore import pyqtSignal, QSize
+from qgis.PyQt.QtGui import QPixmap
+from qgis.PyQt.QtWidgets import QGraphicsPixmapItem
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'pomodoro_dockwidget_base.ui'))
@@ -44,6 +46,10 @@ class PomodoroDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # http://doc.qt.io/qt-5/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+        self.sucess = QPixmap(os.path.join(
+    os.path.dirname(__file__), 'green_icon.png'))
+        self.fail = QPixmap(os.path.join(
+    os.path.dirname(__file__), 'red_icon.png'))
 
     def closeEvent(self, event):
         self.closingPlugin.emit()

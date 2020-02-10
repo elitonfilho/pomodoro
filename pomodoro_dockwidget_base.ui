@@ -14,8 +14,11 @@
    <string>Pomodoro</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="2" column="0">
+    <item row="3" column="0">
      <widget class="QLabel" name="label">
       <property name="text">
        <string>Replace this QLabel
@@ -23,6 +26,16 @@ with the desired
 plugin content.</string>
       </property>
       <property name="scaledContents">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QPushButton" name="pushButton">
+      <property name="text">
+       <string>Novo Pomodoro</string>
+      </property>
+      <property name="checkable">
        <bool>false</bool>
       </property>
      </widget>
@@ -43,15 +56,8 @@ plugin content.</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="0">
-     <widget class="QPushButton" name="pushButton">
-      <property name="text">
-       <string>Novo Pomodoro</string>
-      </property>
-      <property name="checkable">
-       <bool>false</bool>
-      </property>
-     </widget>
+    <item row="2" column="0">
+     <widget class="QWidget" name="widget" native="true"/>
     </item>
    </layout>
   </widget>

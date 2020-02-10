@@ -50,21 +50,9 @@ class Pomodoro:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
 
-        # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
-        locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'Pomodoro_{}.qm'.format(locale))
-
-        if os.path.exists(locale_path):
-            self.translator = QTranslator()
-            self.translator.load(locale_path)
-            QCoreApplication.installTranslator(self.translator)
-
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&Pomodoro')
+        self.menu = u'&Pomodoro'
         self.toolbar = self.iface.addToolBar(u'Pomodoro')
         self.toolbar.setObjectName(u'Pomodoro')
 
@@ -74,23 +62,6 @@ class Pomodoro:
         self.dockwidget = None
 
         self._thread = HandlePomodoro()
-
-
-    # noinspection PyMethodMayBeStatic
-    def tr(self, message):
-        """Get the translation for a string using Qt translation API.
-
-        We implement this ourselves since we do not inherit QObject.
-
-        :param message: String for translation.
-        :type message: str, QString
-
-        :returns: Translated version of message.
-        :rtype: QString
-        """
-        # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('Pomodoro', message)
-
 
     def add_action(
         self,
@@ -172,16 +143,13 @@ class Pomodoro:
         icon_path = ':/plugins/pomodoro/icon.png'
         self.add_action(
             icon_path,
-            text=self.tr(u'Pomodoro'),
+            text=u'Pomodoro',
             callback=self.run,
             parent=self.iface.mainWindow())
 
-    #--------------------------------------------------------------------------
 
     def onClosePlugin(self):
         """Cleanup necessary items here when plugin dockwidget is closed"""
-
-        #print "** CLOSING Pomodoro"
 
         # disconnects
         self.dockwidget.closingPlugin.disconnect(self.onClosePlugin)
@@ -202,35 +170,31 @@ class Pomodoro:
 
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&Pomodoro'),
+                u'&Pomodoro',
                 action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         del self.toolbar
 
-    #--------------------------------------------------------------------------
-
     def onStart(self):
-        print('main id', int(QtCore.QThread.currentThreadId()))
+        """Starts the thread"""
         self._thread.start()
+        print('main id', int(QtCore.QThread.currentThreadId()))
 
     def closeEvent(self, event):
         if self._thread.isRunning():
             self._thread.quit()
-            # 强制
             # self._thread.terminate()
         del self._thread
 
     def updateLCD(self):
-        self.dockwidget.lcdNumber.display(self._thread.duration)
+        self.dockwidget.lcdNumber.display(self._thread.lcdString())
 
     def run(self):
         """Run method that loads and starts the plugin"""
 
         if not self.pluginIsActive:
             self.pluginIsActive = True
-
-            #print "** STARTING Pomodoro"
 
             # dockwidget may not exist if:
             #    first run of plugin
@@ -241,11 +205,12 @@ class Pomodoro:
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
+            # connect button to refresh Pomodoro 
+            self.dockwidget.pushButton.clicked.connect(self._thread.refreshPomodoro)
+            # connect pyqtsignal to refresh screen 
             self._thread.valueChanged.connect(self.updateLCD)
             # show the dockwidget
             # TODO: fix to allow choice of dock location
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
             self._thread.start()
-            # pomo = HandlePomodoro()
-            # pomo.run()

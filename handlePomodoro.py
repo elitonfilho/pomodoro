@@ -9,12 +9,11 @@ class HandlePomodoro(QThread):
     def __init__(self, parent=None):
         super(HandlePomodoro, self).__init__(parent)
         self.running = True
-        self.duration = 25
-        # self.duration = timedelta(minutes=25)
+        self.duration = 120
         self.today = date.today
 
     def run(self):
-        while self.running:
+        while self.running and self.duration:
             print('thread id', int(QThread.currentThreadId()))
             for i in range(self.duration):
                 print('value', i)
@@ -25,16 +24,15 @@ class HandlePomodoro(QThread):
     def changeState(self):
         self.running = ~self.running
 
+    def refreshPomodoro(self):
+        self.duration = 120
+
+    def lcdString(self):
+        return f'{self.duration // 60}:{self.duration % 60}'
+
 
     # def tick(self):
     #     self.duration = self.duration - timedelta(seconds=1)
-
-    # def run(self):
-    #     while self.running:
-    #         self.tick()
-    #         self.valueChanged.emit(self.duration.total_seconds())
-    #         QThread.sleep(1)
-
 
 if __name__ == "__main__":
     pomodoro = HandlePomodoro()

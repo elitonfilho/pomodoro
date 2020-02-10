@@ -29,8 +29,8 @@ from PyQt5 import QtCore
 from .resources import *
 
 # Import the code for the DockWidget
-from .pomodoro_dockwidget import PomodoroDockWidget
 import os.path
+from .pomodoro_dockwidget import PomodoroDockWidget
 from .handlePomodoro import HandlePomodoro
 
 class Pomodoro:
@@ -221,6 +221,9 @@ class Pomodoro:
             # self._thread.terminate()
         del self._thread
 
+    def updateLCD(self):
+        self.dockwidget.lcdNumber.display(self._thread.duration)
+
     def run(self):
         """Run method that loads and starts the plugin"""
 
@@ -238,10 +241,11 @@ class Pomodoro:
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
+            self._thread.valueChanged.connect(self.updateLCD)
             # show the dockwidget
             # TODO: fix to allow choice of dock location
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
-            # self._thread.start()
+            self._thread.start()
             # pomo = HandlePomodoro()
             # pomo.run()

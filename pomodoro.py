@@ -23,7 +23,7 @@
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt, pyqtSlot
 from qgis.PyQt.QtGui import QIcon, QPixmap
-from qgis.PyQt.QtWidgets import QAction, QGraphicsGridLayout, QGraphicsScene, QLabel, QVBoxLayout
+from qgis.PyQt.QtWidgets import QAction, QGraphicsGridLayout, QGraphicsScene, QLabel, QVBoxLayout, QHBoxLayout, QBoxLayout, QGridLayout
 from PyQt5 import QtCore
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -179,7 +179,7 @@ class Pomodoro:
     def onStart(self):
         """Starts the thread"""
         self._thread.start()
-        print('main id', int(QtCore.QThread.currentThreadId()))
+        # print('main id', int(QtCore.QThread.currentThreadId()))
 
     def closeEvent(self, event):
         if self._thread.isRunning():
@@ -190,22 +190,62 @@ class Pomodoro:
     def updateLCD(self):
         self.dockwidget.lcdNumber.display(self._thread.lcdString())
 
+    def deleteLayoutItems(self):
+        for item in range(self.dockwidget.testeLayout.count()):
+            layout_item = self.dockwidget.testeLayout.itemAt(item)
+            print(layout_item)
+            self.dockwidget.testeLayout.removeItem(layout_item)
+
     def updateHistoric(self):
-        vbox = QVBoxLayout()
-        for _id, item in enumerate(self._thread.session['historic']):
-            label = QLabel()
-            if item:
-                label.setPixmap(self.dockwidget.sucess)
-                vbox.addWidget(label)
-                vbox.addStretch()
-                # self.dockwidget.label.setPixmap(self.dockwidget.sucess)
+        # 1: Works dinamically, but there's no limit
+        # hbox = QHBoxLayout()
+        # label = QLabel()
+        # last = self._thread.session['historic'][-1]
+        # if last:
+        #     label.setPixmap(self.dockwidget.sucess)
+        #     hbox.addWidget(label)
+        # else:
+        #     label.setPixmap(self.dockwidget.fail)
+        #     hbox.addWidget(label)
+        # self.dockwidget.testeLayout.addLayout(hbox)
+
+        # 2: Inserts 1, 2, 3...
+        # hbox = QHBoxLayout()
+        # for _id, item in enumerate(self._thread.session['historic']):
+        #     label = QLabel()
+        #     if item:
+        #         label.setPixmap(self.dockwidget.sucess)
+        #         hbox.addWidget(label)
+        #     else:
+        #         label.setPixmap(self.dockwidget.fail)
+        #         hbox.addWidget(label)
+        # self.dockwidget.testeLayout.addLayout(hbox)
+        
+        # 3: Works well, but needs to pre-define layouts on ui
+        items = ['icon_0', 'icon_1', 'icon_2', 'icon_3', 'icon_4', 'icon_5', 'icon_6']
+        historic = self._thread.session['historic'].copy()
+        layout = self.dockwidget.dockWidgetContents.children()
+        for item in items:
+            child = self.dockwidget.dockWidgetContents.findChild(QLabel, item)
+            try:
+                status = historic.pop()
+            except IndexError:
+                break
+            if status:
+                child.setPixmap(self.dockwidget.sucess)
             else:
-                label.setPixmap(self.dockwidget.fail)
-                vbox.addWidget(label)
-                vbox.addStretch()
-                # self.dockwidget.label.setPixmap(self.dockwidget.fail)
-        self.dockwidget.widget.setLayout(vbox)
-        print(self._thread.session)
+                child.setPixmap(self.dockwidget.fail)
+
+        # hbox = QHBoxLayout()
+        # for _id, item in enumerate(self._thread.session['historic']):
+        #     label = QLabel()
+        #     if item:
+        #         label.setPixmap(self.dockwidget.sucess)
+        #         hbox.addWidget(label)
+        #     else:
+        #         label.setPixmap(self.dockwidget.fail)
+        #         hbox.addWidget(label)
+        # self.dockwidget.label.setLayout(hbox)
 
     def run(self):
         """Run method that loads and starts the plugin"""

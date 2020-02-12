@@ -11,7 +11,7 @@ class HandlePomodoro(QThread):
     def __init__(self, parent=None):
         super(HandlePomodoro, self).__init__(parent)
         self.running = True
-        self.duration = 10
+        self.duration = 90
         self.today = date.today
         self.session = {
             'historic' : []
@@ -48,12 +48,12 @@ class HandlePomodoro(QThread):
             self.session['historic'].append(False)
         elif not self.duration:
             self.session['historic'].append(True)
-        self.duration = 10
+        self.duration = 90
         self.updateHistoric.emit(self.session['historic'])
         # print(self.session)
 
     def lcdString(self):
-        return f'{self.duration // 60}:{self.duration % 60}'
+        return '{:2}:{:0>2}'.format(self.duration // 60, self.duration % 60)
 
 
     # def tick(self):

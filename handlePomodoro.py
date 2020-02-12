@@ -32,7 +32,8 @@ class HandlePomodoro(QThread):
                     # print('value', i)
                     self.updateTimer.emit(i)
                     self.duration -= 1
-                    QThread.sleep(1)
+                    time.sleep(1)
+                    # QThread.sleep(1)
 
         # timer = QTimer(self)
         # timer.setInterval(1000)

@@ -32,6 +32,7 @@ from .resources import *
 import os.path
 from .pomodoro_dockwidget import PomodoroDockWidget
 from .handlePomodoro import HandlePomodoro
+from .monitorCanvas import MonitorCanvas
 
 class Pomodoro:
     """QGIS Plugin Implementation."""
@@ -62,6 +63,8 @@ class Pomodoro:
         self.dockwidget = None
 
         self._thread = HandlePomodoro()
+        self.monitor = MonitorCanvas()
+        self.monitor.startMonitoring()
 
     def add_action(
         self,
@@ -250,6 +253,11 @@ class Pomodoro:
         #         hbox.addWidget(label)
         # self.dockwidget.label.setLayout(hbox)
 
+    def updateHistoricByMonitor(self):
+        print(self.monitor.updateByMonitor)
+        self._thread.refreshPomodoro()
+
+
     def run(self):
         """Run method that loads and starts the plugin"""
 
@@ -271,8 +279,11 @@ class Pomodoro:
             self._thread.updateTimer.connect(self.updateLCD)
             # connect pyqtsignal to refresh historic
             self._thread.updateHistoric.connect(self.updateHistoric)
+            # connect pyqtsignal from monitor
+            self.monitor.updateByMonitor.connect(self.updateHistoricByMonitor)
             # show the dockwidget
             # TODO: fix to allow choice of dock location
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
             self._thread.start()
+            self.monitor.start()

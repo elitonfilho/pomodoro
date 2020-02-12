@@ -165,16 +165,16 @@ class Pomodoro:
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
+        pass
+        # #print "** UNLOAD Pomodoro"
 
-        #print "** UNLOAD Pomodoro"
-
-        for action in self.actions:
-            self.iface.removePluginMenu(
-                u'&Pomodoro',
-                action)
-            self.iface.removeToolBarIcon(action)
-        # remove the toolbar
-        del self.toolbar
+        # for action in self.actions:
+        #     self.iface.removePluginMenu(
+        #         u'&Pomodoro',
+        #         action)
+        #     self.iface.removeToolBarIcon(action)
+        # # remove the toolbar
+        # del self.toolbar
 
     def onStart(self):
         """Starts the thread"""
@@ -191,23 +191,26 @@ class Pomodoro:
         self.dockwidget.lcdNumber.display(self._thread.lcdString())
 
     def deleteLayoutItems(self):
-        for item in range(self.dockwidget.testeLayout.count()):
-            layout_item = self.dockwidget.testeLayout.itemAt(item)
-            print(layout_item)
-            self.dockwidget.testeLayout.removeItem(layout_item)
+        for idx in range(self.dockwidget.testeLayout.count()):
+            item = self.dockwidget.testeLayout.itemAt(idx)
+            if item is None:
+                continue
+            item.widget().deleteLater()
 
     def updateHistoric(self):
         # 1: Works dinamically, but there's no limit
-        # hbox = QHBoxLayout()
+        #hbox = QHBoxLayout()
         # label = QLabel()
         # last = self._thread.session['historic'][-1]
         # if last:
         #     label.setPixmap(self.dockwidget.sucess)
-        #     hbox.addWidget(label)
+        #     self.dockwidget.testeLayout.addWidget(label)
         # else:
         #     label.setPixmap(self.dockwidget.fail)
-        #     hbox.addWidget(label)
-        # self.dockwidget.testeLayout.addLayout(hbox)
+        #     self.dockwidget.testeLayout.addWidget(label)
+        # #self.dockwidget.testeLayout.addLayout(hbox)
+        # if len(self._thread.session['historic']) > 3:
+        #     self.deleteLayoutItems()
 
         # 2: Inserts 1, 2, 3...
         # hbox = QHBoxLayout()

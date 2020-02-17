@@ -201,6 +201,7 @@ class Pomodoro:
             item.widget().deleteLater()
 
     def updateHistoric(self):
+        # TODO: Append dinamically using deleteLayoutItems
         # 1: Works dinamically, but there's no limit
         #hbox = QHBoxLayout()
         # label = QLabel()
@@ -254,8 +255,8 @@ class Pomodoro:
         # self.dockwidget.label.setLayout(hbox)
 
     def updateHistoricByMonitor(self):
-        print(self.monitor.updateByMonitor)
         self._thread.refreshPomodoro()
+        self._thread.isTimerRunning = False
 
 
     def run(self):

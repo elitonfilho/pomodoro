@@ -164,11 +164,14 @@ class Pomodoro:
         # self.dockwidget = None
 
         self.pluginIsActive = False
+        self._thread.terminate()
+        self.monitor.terminate()
 
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
-        pass
+        self._thread.terminate()
+        self.monitor.terminate()
         # #print "** UNLOAD Pomodoro"
 
         # for action in self.actions:
@@ -255,9 +258,13 @@ class Pomodoro:
         # self.dockwidget.label.setLayout(hbox)
 
     def updateHistoricByMonitor(self):
-        self._thread.refreshPomodoro()
-        self._thread.isTimerRunning = False
+        if self._thread.isTimerRunning:
+            self._thread.refreshPomodoroByMonitor()
+            self.monitor.stopMonitoring()
 
+    def updateHistoricByButton(self):
+        self._thread.refreshPomodoro()
+        self.monitor.startMonitoring()
 
     def run(self):
         """Run method that loads and starts the plugin"""
@@ -275,7 +282,7 @@ class Pomodoro:
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
             # connect button to refresh Pomodoro 
-            self.dockwidget.pushButton.clicked.connect(self._thread.refreshPomodoro)
+            self.dockwidget.pushButton.clicked.connect(self.updateHistoricByButton)
             # connect pyqtsignal to refresh screen 
             self._thread.updateTimer.connect(self.updateLCD)
             # connect pyqtsignal to refresh historic

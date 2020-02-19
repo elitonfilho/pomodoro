@@ -11,7 +11,8 @@ class HandlePomodoro(QThread):
     def __init__(self, parent=None):
         super(HandlePomodoro, self).__init__(parent)
         self.running = True
-        self.duration = 90
+        # TODO: Use QTimer()
+        self.duration = 30
         self.today = date.today
         self.isTimerRunning = True
         self.session = {
@@ -23,17 +24,17 @@ class HandlePomodoro(QThread):
 
 
     def run(self):
-        # if not self.duration:
-        #     self.session['historic'].append(True)
-        #     self.updateHistoric.emit(self.session['historic'])
         while self.running:
             if self.duration:
                 for i in range(self.duration):
                     if self.isTimerRunning:
                         self.updateTimer.emit(i)
                         self.duration -= 1
+                        if not self.duration:
+                            self.session['historic'].append(True)
+                            self.updateHistoric.emit(self.session['historic'])
+                        # TODO: use QThread.sleep()
                         time.sleep(1)
-                    # QThread.sleep(1)
 
         # timer = QTimer(self)
         # timer.setInterval(1000)
@@ -45,14 +46,20 @@ class HandlePomodoro(QThread):
 
     def refreshPomodoro(self):
         # TODO: append the pixmap itself
-        self.running = True
+        if self.duration:
+            self.session['historic'].append(False)
+        self.duration = 90
+        self.updateHistoric.emit(self.session['historic'])
+        self.isTimerRunning = True
+        # print(self.session)
+
+    def refreshPomodoroByMonitor(self):
+        self.isTimerRunning = False
         if self.duration:
             self.session['historic'].append(False)
         elif not self.duration:
             self.session['historic'].append(True)
-        self.duration = 90
         self.updateHistoric.emit(self.session['historic'])
-        # print(self.session)
 
     def lcdString(self):
         return '{:2}:{:0>2}'.format(self.duration // 60, self.duration % 60)

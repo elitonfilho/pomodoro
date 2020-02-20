@@ -263,7 +263,7 @@ class Pomodoro:
             self.monitor.stopMonitoring()
 
     def updateHistoricByButton(self):
-        self._thread.refreshPomodoro()
+        self._thread.refreshPomodoro(self.monitor.isMonitoring)
         self.monitor.startMonitoring()
 
     def run(self):

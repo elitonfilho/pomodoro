@@ -7,6 +7,7 @@ class HandlePomodoro(QThread):
 
     updateTimer = pyqtSignal(int)
     updateHistoric = pyqtSignal(list)
+    wasSucessful = pyqtSignal()
 
     def __init__(self, parent=None):
         super(HandlePomodoro, self).__init__(parent)
@@ -33,6 +34,7 @@ class HandlePomodoro(QThread):
                         if not self.duration:
                             self.session['historic'].append(True)
                             self.updateHistoric.emit(self.session['historic'])
+                            self.isTimerRunning = False
                         # TODO: use QThread.sleep()
                         time.sleep(1)
 
@@ -44,12 +46,13 @@ class HandlePomodoro(QThread):
     def changeState(self):
         self.running = ~self.running
 
-    def refreshPomodoro(self):
+    def refreshPomodoro(self, isMonitoring=True):
         # TODO: append the pixmap itself
-        if self.duration:
-            self.session['historic'].append(False)
-        self.duration = 90
-        self.updateHistoric.emit(self.session['historic'])
+        if isMonitoring:
+            if self.duration:
+                self.session['historic'].append(False)
+            self.updateHistoric.emit(self.session['historic'])
+        self.duration = 30
         self.isTimerRunning = True
         # print(self.session)
 
@@ -57,8 +60,6 @@ class HandlePomodoro(QThread):
         self.isTimerRunning = False
         if self.duration:
             self.session['historic'].append(False)
-        elif not self.duration:
-            self.session['historic'].append(True)
         self.updateHistoric.emit(self.session['historic'])
 
     def lcdString(self):

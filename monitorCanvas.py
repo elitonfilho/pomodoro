@@ -14,15 +14,19 @@ class MonitorCanvas(QThread):
 
     def startMonitoring(self):
         self.isMonitoring = True
+        self.hasChangedCanvas = True
+        print('Started monitoring')
         iface.mapCanvas().mapCanvasRefreshed.connect(self.updateMonitoring)
 
     def stopMonitoring(self):
         self.isMonitoring = False
         print('Stopped monitoring')
-        iface.mapCanvas().mapCanvasRefreshed.disconnect(self.updateMonitoring)
+        try:
+            iface.mapCanvas().mapCanvasRefreshed.disconnect(self.updateMonitoring)
+        except TypeError:
+            pass
 
     def updateMonitoring(self):
-        print(self.hasChangedCanvas)
         self.hasChangedCanvas = True
 
     def run(self):
@@ -32,9 +36,10 @@ class MonitorCanvas(QThread):
             elif self.hasChangedCanvas:
                 self.hasChangedCanvas = False
                 QThread.sleep(10)
-            elif not self.hasChangedCanvas:
+            elif not self.hasChangedCanvas and self.isMonitoring:
                 self.updateByMonitor.emit()
-                QThread.sleep(10)
+                self.stopMonitoring()
+                # QThread.sleep(10)
 
 
 

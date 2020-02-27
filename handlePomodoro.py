@@ -2,6 +2,7 @@ import time
 from datetime import date, timedelta
 from PyQt5.QtCore import QThread, pyqtSignal
 from qgis.core import QgsSettings
+from .userHistoric import UserHistoric
 
 class HandlePomodoro(QThread):
 
@@ -16,13 +17,11 @@ class HandlePomodoro(QThread):
         self.duration = 30
         self.today = date.today
         self.isTimerRunning = True
+        # TODO: use a simple array
         self.session = {
             'historic' : []
         }
-
-        # Reads old settings
-        s = QgsSettings()
-
+        self.historic = UserHistoric()
 
     def run(self):
         while self.running:
@@ -50,6 +49,7 @@ class HandlePomodoro(QThread):
         # TODO: append the pixmap itself
         if isMonitoring:
             if self.duration:
+                # TODO: call a function which triggers the append and updates the userHistoric
                 self.session['historic'].append(False)
             self.updateHistoric.emit(self.session['historic'])
         self.duration = 30

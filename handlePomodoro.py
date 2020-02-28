@@ -4,7 +4,8 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from qgis.core import QgsSettings
 from .userHistoric import UserHistoric
 
-class HandlePomodoro(QThread):
+
+class HandlePomodoro(QThread, UserHistoric):
 
     updateTimer = pyqtSignal(int)
     updateHistoric = pyqtSignal(list)
@@ -19,9 +20,8 @@ class HandlePomodoro(QThread):
         self.isTimerRunning = True
         # TODO: use a simple array
         self.session = {
-            'historic' : []
+            'historic': []
         }
-        self.historic = UserHistoric()
 
     def run(self):
         while self.running:
@@ -31,8 +31,7 @@ class HandlePomodoro(QThread):
                         self.updateTimer.emit(i)
                         self.duration -= 1
                         if not self.duration:
-                            self.session['historic'].append(True)
-                            self.updateHistoric.emit(self.session['historic'])
+                            self.triggerSuccess()
                             self.isTimerRunning = False
                         # TODO: use QThread.sleep()
                         time.sleep(1)
@@ -48,19 +47,24 @@ class HandlePomodoro(QThread):
     def refreshPomodoro(self, isMonitoring=True):
         # TODO: append the pixmap itself
         if isMonitoring:
-            if self.duration:
-                # TODO: call a function which triggers the append and updates the userHistoric
-                self.session['historic'].append(False)
-            self.updateHistoric.emit(self.session['historic'])
+            self.triggerFail()
         self.duration = 30
         self.isTimerRunning = True
-        # print(self.session)
 
     def refreshPomodoroByMonitor(self):
         self.isTimerRunning = False
+        self.triggerFail()
+
+    def triggerSuccess(self):
+        self.session['historic'].append(True)
+        self.updateHistoric.emit(self.session['historic'])
+        self.updateSucess()
+
+    def triggerFail(self):
         if self.duration:
             self.session['historic'].append(False)
         self.updateHistoric.emit(self.session['historic'])
+        self.updateFail()
 
     def lcdString(self):
         return '{:2}:{:0>2}'.format(self.duration // 60, self.duration % 60)

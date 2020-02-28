@@ -1,25 +1,31 @@
 from datetime import date
 from qgis.core import QgsSettings
 
+
 class UserHistoric:
 
     def __init__(self):
-        s = QgsSettings()
-        variables = ['dateLastAcess''sThisSession', 'fThisSession', 'sTotal', 'fTotal', 'sTimeWithoutFail']
-        dateLastAcess = s.value("pomodoro/dateLastAcess", None)
+        self.s = QgsSettings()
+        variables = ['dateLastAcess', 'sThisSession', 'fThisSession',
+                     'sTotal', 'fTotal', 'sTimeWithoutFail']
+        dateLastAcess = self.s.value("pomodoro/dateLastAcess", None)
         if dateLastAcess == date.today():
-            self.vars = {x:s.value(f"pomodoro/{x}", None) for x in variables}
+            self.vars = {x: s.value(f"pomodoro/{x}", 0) for x in variables}
         else:
-            self.vars = {x:None for x in variables}
-        s.setValue('pomodoro/dateLastAcess', date.today())
-    
+            self.vars = {x: 0 for x in variables}
+        self.__class__s.setValue('pomodoro/dateLastAcess', date.today())
+
     def updateSucess(self):
-        pass
+        self.vars['sThisSession'] += 1
+        self.s.setValue('pomodoro/sThisSession', self.vars['sThisSession'])
 
     def updateFail(self):
-        pass
+        self.vars['fThisSession'] += 1
+        self.s.setValue('pomodoro/fThisSession', self.vars['fThisSession'])
+
 
     def updateTimeWithoutFail(self):
-        pass
+        self.vars['sTimeWithoutFail'] += 1
+        self.s.setValue('pomodoro/fThisSession', self.vars['fThisSession'])
 
-    
+

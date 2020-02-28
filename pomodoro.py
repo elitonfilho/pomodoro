@@ -34,6 +34,7 @@ from .pomodoro_dockwidget import PomodoroDockWidget
 from .handlePomodoro import HandlePomodoro
 from .monitorCanvas import MonitorCanvas
 
+
 class Pomodoro:
     """QGIS Plugin Implementation."""
 
@@ -67,16 +68,16 @@ class Pomodoro:
         self.monitor.startMonitoring()
 
     def add_action(
-        self,
-        icon_path,
-        text,
-        callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
-        status_tip=None,
-        whats_this=None,
-        parent=None):
+            self,
+            icon_path,
+            text,
+            callback,
+            enabled_flag=True,
+            add_to_menu=True,
+            add_to_toolbar=True,
+            status_tip=None,
+            whats_this=None,
+            parent=None):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -139,7 +140,6 @@ class Pomodoro:
 
         return action
 
-
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
@@ -149,7 +149,6 @@ class Pomodoro:
             text=u'Pomodoro',
             callback=self.run,
             parent=self.iface.mainWindow())
-
 
     def onClosePlugin(self):
         """Cleanup necessary items here when plugin dockwidget is closed"""
@@ -166,7 +165,6 @@ class Pomodoro:
         self.pluginIsActive = False
         self._thread.terminate()
         self.monitor.terminate()
-
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -230,9 +228,10 @@ class Pomodoro:
         #         label.setPixmap(self.dockwidget.fail)
         #         hbox.addWidget(label)
         # self.dockwidget.testeLayout.addLayout(hbox)
-        
+
         # 3: Works well, but needs to pre-define layouts on ui
-        items = ['icon_0', 'icon_1', 'icon_2', 'icon_3', 'icon_4', 'icon_5', 'icon_6']
+        items = ['icon_0', 'icon_1', 'icon_2',
+                 'icon_3', 'icon_4', 'icon_5', 'icon_6']
         historic = self._thread.session['historic'].copy()
         layout = self.dockwidget.dockWidgetContents.children()
         for item in items:
@@ -246,6 +245,10 @@ class Pomodoro:
             else:
                 child.setPixmap(self.dockwidget.fail)
 
+        self.dockwidget.label.setText('Estatística de uso (sucesso/falha): {}/{}'.format(
+            self._thread.vars['sThisSession'],
+            self._thread.vars['fThisSession']
+        ))
         # hbox = QHBoxLayout()
         # for _id, item in enumerate(self._thread.session['historic']):
         #     label = QLabel()
@@ -281,9 +284,10 @@ class Pomodoro:
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
-            # connect button to refresh Pomodoro 
-            self.dockwidget.pushButton.clicked.connect(self.updateHistoricByButton)
-            # connect pyqtsignal to refresh screen 
+            # connect button to refresh Pomodoro
+            self.dockwidget.pushButton.clicked.connect(
+                self.updateHistoricByButton)
+            # connect pyqtsignal to refresh screen
             self._thread.updateTimer.connect(self.updateLCD)
             # connect pyqtsignal to refresh historic
             self._thread.updateHistoric.connect(self.updateHistoric)

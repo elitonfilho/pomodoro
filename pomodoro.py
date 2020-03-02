@@ -187,16 +187,33 @@ class Pomodoro:
 
     def closeEvent(self, event):
         if self._thread.isRunning():
-            self._thread.quit()
+            # self._thread.quit()
             self._thread.terminate()
         if self.monitor.isRunning():
-            self.monitor.quit()
+            # self.monitor.quit()
             self.monitor.terminate()
         del self._thread
         del self.monitor
 
     def updateLCD(self):
         self.dockwidget.lcdNumber.display(self._thread.lcdString())
+
+    def updateTextLabels(self):
+        workTime = int(self.monitor.vars['workTime'])
+        idleTime = int(self.monitor.vars['idleTime'])
+        self.dockwidget.label_1.setText('Estatística de uso (sucesso/falha): {}/{}'.format(
+            self._thread.vars['sThisSession'],
+            self._thread.vars['fThisSession']
+        ))
+        self.dockwidget.label_2.setText('Tempo de trabalho: {} ({:5.2f}%)'.format(
+            workTime,
+            100*workTime/(workTime + idleTime),
+        ))
+        self.dockwidget.label_3.setText('Tempo ocioso: {} ({:5.2f}%)'.format(
+            idleTime,
+            100*idleTime/(workTime + idleTime),
+        ))
+
 
     def deleteLayoutItems(self):
         for idx in range(self.dockwidget.testeLayout.count()):
@@ -249,10 +266,8 @@ class Pomodoro:
             else:
                 child.setPixmap(self.dockwidget.fail)
 
-        self.dockwidget.label.setText('Estatística de uso (sucesso/falha): {}/{}'.format(
-            self._thread.vars['sThisSession'],
-            self._thread.vars['fThisSession']
-        ))
+            self.updateTextLabels()
+
         # hbox = QHBoxLayout()
         # for _id, item in enumerate(self._thread.session['historic']):
         #     label = QLabel()
@@ -285,7 +300,7 @@ class Pomodoro:
             if self.dockwidget == None:
                 # Create the dockwidget (after translation) and keep reference
                 self.dockwidget = PomodoroDockWidget()
-
+            self.updateTextLabels()
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
             # connect button to refresh Pomodoro
@@ -297,6 +312,8 @@ class Pomodoro:
             self._thread.updateHistoric.connect(self.updateHistoric)
             # connect pyqtsignal from monitor
             self.monitor.updateByMonitor.connect(self.updateHistoricByMonitor)
+            #connect pyqtsignal from monitor (update statistics)
+            self.monitor.updateTickTimer.connect(self.updateHistoric)
             # show the dockwidget
             # TODO: fix to allow choice of dock location
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)

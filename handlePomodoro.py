@@ -9,7 +9,6 @@ class HandlePomodoro(QThread, UserHistoric):
 
     updateTimer = pyqtSignal(int)
     updateHistoric = pyqtSignal(list)
-    wasSucessful = pyqtSignal()
 
     def __init__(self, parent=None):
         super(HandlePomodoro, self).__init__(parent)
@@ -41,9 +40,6 @@ class HandlePomodoro(QThread, UserHistoric):
         # timer.timeout.connect(self.updateText)
         # timer.start()
 
-    def changeState(self):
-        self.running = ~self.running
-
     def refreshPomodoroByButton(self, isMonitoring=True):
         # TODO: append the pixmap itself
         if isMonitoring and self.duration:
@@ -69,11 +65,3 @@ class HandlePomodoro(QThread, UserHistoric):
 
     def lcdString(self):
         return '{:2}:{:0>2}'.format(self.duration // 60, self.duration % 60)
-
-    def tick(self):
-        self.duration -= 1
-
-
-if __name__ == "__main__":
-    pomodoro = HandlePomodoro()
-    pomodoro.run()

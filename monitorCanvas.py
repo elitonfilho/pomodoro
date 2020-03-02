@@ -1,16 +1,19 @@
 from qgis.PyQt.QtCore import QThread, pyqtSignal
 from qgis.utils import iface
+from .userHistoric import UserHistoric
 
 
-class MonitorCanvas(QThread):
+class MonitorCanvas(QThread, UserHistoric):
 
     updateByMonitor = pyqtSignal()
+    updateTickTimer = pyqtSignal()
 
     def __init__(self, parent=None):
         super(MonitorCanvas, self).__init__(parent)
         self.iface = iface
         self.running = True
         self.isMonitoring = True
+        self.isMonitoringForStatus = True
         self.hasChangedCanvas = False
 
     def startMonitoring(self):
@@ -22,10 +25,10 @@ class MonitorCanvas(QThread):
     def stopMonitoring(self):
         self.isMonitoring = False
         print('Stopped monitoring')
-        try:
-            iface.mapCanvas().mapCanvasRefreshed.disconnect(self.updateMonitoring)
-        except TypeError:
-            pass
+        # try:
+        #     iface.mapCanvas().mapCanvasRefreshed.disconnect(self.updateMonitoring)
+        # except TypeError:
+        #     pass
 
     def updateMonitoring(self):
         self.hasChangedCanvas = True
@@ -33,12 +36,17 @@ class MonitorCanvas(QThread):
     def run(self):
         # TODO Verificar a lógica. stopMonitonitor is not called after the emit
         while self.running:
-            if not self.isMonitoring:
-                continue
+            if self.hasChangedCanvas:
+                self.hasChangedCanvas = False
+                self.updateWorkTime()
+                self.updateTickTimer.emit()
+                print('Updating work time!')
+                QThread.sleep(10)
+            elif not self.hasChangedCanvas and not self.isMonitoring:
+                self.updateIdleTime()
+                self.updateTickTimer.emit()
+                print('Updating idle time!')
+                QThread.sleep(10)
             elif not self.hasChangedCanvas and self.isMonitoring:
                 self.stopMonitoring()
                 self.updateByMonitor.emit()
-            elif self.hasChangedCanvas:
-                self.hasChangedCanvas = False
-                QThread.sleep(10)
-                # QThread.sleep(10)

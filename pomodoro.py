@@ -188,8 +188,12 @@ class Pomodoro:
     def closeEvent(self, event):
         if self._thread.isRunning():
             self._thread.quit()
-            # self._thread.terminate()
+            self._thread.terminate()
+        if self.monitor.isRunning():
+            self.monitor.quit()
+            self.monitor.terminate()
         del self._thread
+        del self.monitor
 
     def updateLCD(self):
         self.dockwidget.lcdNumber.display(self._thread.lcdString())
@@ -262,11 +266,11 @@ class Pomodoro:
 
     def updateHistoricByMonitor(self):
         if self._thread.isTimerRunning:
-            self._thread.refreshPomodoroByMonitor()
+            self._thread.refreshPomodoroByMonitor(self.monitor.isMonitoring)
             self.monitor.stopMonitoring()
 
     def updateHistoricByButton(self):
-        self._thread.refreshPomodoro(self.monitor.isMonitoring)
+        self._thread.refreshPomodoroByButton(self.monitor.isMonitoring)
         self.monitor.startMonitoring()
 
     def run(self):

@@ -1,11 +1,12 @@
 from qgis.PyQt.QtCore import QThread, pyqtSignal
 from qgis.utils import iface
 
+
 class MonitorCanvas(QThread):
 
     updateByMonitor = pyqtSignal()
 
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super(MonitorCanvas, self).__init__(parent)
         self.iface = iface
         self.running = True
@@ -30,16 +31,14 @@ class MonitorCanvas(QThread):
         self.hasChangedCanvas = True
 
     def run(self):
+        # TODO Verificar a lógica. stopMonitonitor is not called after the emit
         while self.running:
             if not self.isMonitoring:
                 continue
+            elif not self.hasChangedCanvas and self.isMonitoring:
+                self.stopMonitoring()
+                self.updateByMonitor.emit()
             elif self.hasChangedCanvas:
                 self.hasChangedCanvas = False
                 QThread.sleep(10)
-            elif not self.hasChangedCanvas and self.isMonitoring:
-                self.updateByMonitor.emit()
-                self.stopMonitoring()
                 # QThread.sleep(10)
-
-
-

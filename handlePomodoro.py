@@ -44,33 +44,35 @@ class HandlePomodoro(QThread, UserHistoric):
     def changeState(self):
         self.running = ~self.running
 
-    def refreshPomodoro(self, isMonitoring=True):
+    def refreshPomodoroByButton(self, isMonitoring=True):
         # TODO: append the pixmap itself
-        if isMonitoring:
+        if isMonitoring and self.duration:
             self.triggerFail()
         self.duration = 30
         self.isTimerRunning = True
 
-    def refreshPomodoroByMonitor(self):
+    def refreshPomodoroByMonitor(self, isMonitoring=True):
         self.isTimerRunning = False
-        self.triggerFail()
+        if self.duration:
+            self.triggerFail()
 
     def triggerSuccess(self):
+        self.updateSucess()
         self.session['historic'].append(True)
         self.updateHistoric.emit(self.session['historic'])
-        self.updateSucess()
 
     def triggerFail(self):
+        self.updateFail()
         if self.duration:
             self.session['historic'].append(False)
         self.updateHistoric.emit(self.session['historic'])
-        self.updateFail()
 
     def lcdString(self):
         return '{:2}:{:0>2}'.format(self.duration // 60, self.duration % 60)
 
     def tick(self):
         self.duration -= 1
+
 
 if __name__ == "__main__":
     pomodoro = HandlePomodoro()

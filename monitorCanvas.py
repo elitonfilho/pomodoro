@@ -13,7 +13,6 @@ class MonitorCanvas(QThread, UserHistoric):
         self.iface = iface
         self.running = True
         self.isMonitoring = True
-        self.isMonitoringForStatus = True
         self.hasChangedCanvas = False
 
     def startMonitoring(self):
@@ -35,6 +34,7 @@ class MonitorCanvas(QThread, UserHistoric):
 
     def run(self):
         # TODO Verificar a lógica. stopMonitonitor is not called after the emit
+        # TODO Verificar a lógica. UpdateTickTimer não é chamado no primeiro pomodoro
         while self.running:
             if self.hasChangedCanvas:
                 self.hasChangedCanvas = False

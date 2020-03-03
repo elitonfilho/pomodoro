@@ -219,6 +219,9 @@ class Pomodoro:
         self.dockwidget.label_5.setText('Maior tempo contínuo de ócio: {}'.format(
             self.monitor.vars['greatIdleTime']
         ))
+        self.dockwidget.label_6.setText('Ocioso desde: {}'.format(
+            self.monitor.vars['idleSince']
+        ))
 
 
     def deleteLayoutItems(self):

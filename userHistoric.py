@@ -30,6 +30,7 @@ class UserHistoric:
     def updateWorkTime(self):
         self.vars['workTime'] = int(self.vars['workTime']) + self.tick
         self.s.setValue('pomodoro/workTime', self.vars['workTime'])
+        self.vars['idleSince'] = 0
         if self.lastStatus:
             self.vars['tmpGreatWorkTime'] = int(self.vars['tmpGreatWorkTime']) + self.tick
         else:
@@ -42,6 +43,7 @@ class UserHistoric:
         self.s.setValue('pomodoro/idleTime', self.vars['idleTime'])
         if not self.lastStatus:
             self.vars['tmpGreatIdleTime'] = int(self.vars['tmpGreatIdleTime']) + self.tick
+            self.vars['idleSince'] = self.vars['tmpGreatIdleTime']
         else:
             self.vars['tmpGreatIdleTime'] = 0
         self.lastStatus = False
@@ -58,7 +60,6 @@ class UserHistoric:
         if tmpGreatIdleTime > greatIdleTime:
             self.vars['greatIdleTime'] = tmpGreatIdleTime
             self.s.setValue('pomodoro/greatIdleTime', self.vars['greatIdleTime'])
-
 
     def updateTimeWithoutFail(self):
         self.vars['timeWithoutFail'] = int(self.vars['timeWithoutFail']) + self.tick

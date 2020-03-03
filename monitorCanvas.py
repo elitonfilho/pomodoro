@@ -41,12 +41,12 @@ class MonitorCanvas(QThread, UserHistoric):
                 self.updateWorkTime()
                 self.updateTickTimer.emit()
                 print('Updating work time!')
-                QThread.sleep(10)
+                QThread.sleep(60)
             elif not self.hasChangedCanvas and not self.isMonitoring:
                 self.updateIdleTime()
                 self.updateTickTimer.emit()
                 print('Updating idle time!')
-                QThread.sleep(10)
+                QThread.sleep(60)
             elif not self.hasChangedCanvas and self.isMonitoring:
                 self.stopMonitoring()
                 self.updateByMonitor.emit()

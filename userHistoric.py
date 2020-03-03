@@ -9,7 +9,7 @@ class UserHistoric:
         variables = ['dateLastAcess', 'sThisSession', 'fThisSession',
                      'sTotal', 'fTotal','workTime', 'idleTime',
                      'greatWorkTime', 'greatIdleTime', 'tmpGreatWorkTime',
-                     'tmpGreatIdleTime', 'idleSince', 'timeWithoutFail']
+                     'tmpGreatIdleTime', 'idleSince']
         dateLastAcess = self.s.value("pomodoro/dateLastAcess", None)
         self.lastStatus = True
         self.tick = 1
@@ -60,9 +60,5 @@ class UserHistoric:
         if tmpGreatIdleTime > greatIdleTime:
             self.vars['greatIdleTime'] = tmpGreatIdleTime
             self.s.setValue('pomodoro/greatIdleTime', self.vars['greatIdleTime'])
-
-    def updateTimeWithoutFail(self):
-        self.vars['timeWithoutFail'] = int(self.vars['timeWithoutFail']) + self.tick
-        self.s.setValue('pomodoro/timeWithoutFail', self.vars['timeWithoutFail'])
 
 

@@ -205,21 +205,21 @@ class Pomodoro:
             self._thread.vars['sThisSession'],
             self._thread.vars['fThisSession']
         ))
-        self.dockwidget.label_2.setText('Tempo de trabalho: {} ({:.2f}%)'.format(
+        self.dockwidget.label_2.setText('Tempo de trabalho: {} min ({:.2f}%)'.format(
             workTime,
             100*workTime/(workTime + idleTime),
         ))
-        self.dockwidget.label_3.setText('Tempo ocioso: {} ({:.2f}%)'.format(
+        self.dockwidget.label_3.setText('Tempo ocioso: {} min ({:.2f}%)'.format(
             idleTime,
             100*idleTime/(workTime + idleTime),
         ))
-        self.dockwidget.label_4.setText('Maior tempo contínuo de trabalho: {}'.format(
+        self.dockwidget.label_4.setText('Maior tempo contínuo de trabalho: {} min'.format(
             self.monitor.vars['greatWorkTime']
         ))
-        self.dockwidget.label_5.setText('Maior tempo contínuo de ócio: {}'.format(
+        self.dockwidget.label_5.setText('Maior tempo contínuo de ócio: {} min'.format(
             self.monitor.vars['greatIdleTime']
         ))
-        self.dockwidget.label_6.setText('Ocioso desde: {}'.format(
+        self.dockwidget.label_6.setText('Ocioso há: {} min'.format(
             self.monitor.vars['idleSince']
         ))
 

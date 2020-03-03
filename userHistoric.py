@@ -13,11 +13,11 @@ class UserHistoric:
         dateLastAcess = self.s.value("pomodoro/dateLastAcess", None)
         self.lastStatus = True
         self.tick = 1
-        if dateLastAcess == date.today():
+        if dateLastAcess == date.today().isoformat():
             self.vars = {x: self.s.value(f"pomodoro/{x}", 0) for x in variables}
         else:
             self.vars = {x: 0 for x in variables}
-        self.s.setValue('pomodoro/dateLastAcess', date.today())
+        self.s.setValue('pomodoro/dateLastAcess', date.today().isoformat())
     # TODO setValue should be called from an unique function which receives the param name
     def updateSucess(self):
         self.vars['sThisSession'] = int(self.vars['sThisSession']) + self.tick
@@ -34,6 +34,7 @@ class UserHistoric:
             self.vars['tmpGreatWorkTime'] = int(self.vars['tmpGreatWorkTime']) + self.tick
         else:
             self.vars['tmpGreatWorkTime'] = 0
+        self.lastStatus = True
         self.updatelongestWorkTime()
 
     def updateIdleTime(self):
@@ -43,13 +44,20 @@ class UserHistoric:
             self.vars['tmpGreatIdleTime'] = int(self.vars['tmpGreatIdleTime']) + self.tick
         else:
             self.vars['tmpGreatIdleTime'] = 0
+        self.lastStatus = False
         self.updatelongestWorkTime()
 
-    def updatelongestWorkTime(self, newStatus):
-        if self.vars['tmpGreatWorkTime'] > self.vars['greatWorkTime']:
-            self.vars['greatWorkTime'] = self.vars['tmpGreatWorkTime']
-        if self.vars['tmpGreatIdleTime'] > self.vars['greatIdleTime']:
-            self.vars['greatIdleTime'] = self.vars['tmpGreatIdleTime']
+    def updatelongestWorkTime(self):
+        tmpGreatWorkTime, greatWorkTime, tmpGreatIdleTime, greatIdleTime = [
+            int(self.vars['tmpGreatWorkTime']), int(self.vars['greatWorkTime']),
+            int(self.vars['tmpGreatIdleTime']), int(self.vars['greatIdleTime'])
+        ]
+        if tmpGreatWorkTime > greatWorkTime:
+            self.vars['greatWorkTime'] = tmpGreatWorkTime
+            self.s.setValue('pomodoro/greatWorkTime', self.vars['greatWorkTime'])
+        if tmpGreatIdleTime > greatIdleTime:
+            self.vars['greatIdleTime'] = tmpGreatIdleTime
+            self.s.setValue('pomodoro/greatIdleTime', self.vars['greatIdleTime'])
 
 
     def updateTimeWithoutFail(self):

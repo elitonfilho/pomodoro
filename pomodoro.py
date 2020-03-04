@@ -201,17 +201,21 @@ class Pomodoro:
     def updateTextLabels(self):
         workTime = int(self.monitor.vars['workTime'])
         idleTime = int(self.monitor.vars['idleTime'])
+        denom = workTime + idleTime
+        if not denom:
+            denom = 1
+
         self.dockwidget.label_1.setText('Estatística de uso (sucesso/falha): {}/{}'.format(
             self._thread.vars['sThisSession'],
             self._thread.vars['fThisSession']
         ))
         self.dockwidget.label_2.setText('Tempo de trabalho: {} min ({:.2f}%)'.format(
             workTime,
-            100*workTime/(workTime + idleTime),
+            100*workTime/(denom),
         ))
         self.dockwidget.label_3.setText('Tempo ocioso: {} min ({:.2f}%)'.format(
             idleTime,
-            100*idleTime/(workTime + idleTime),
+            100*idleTime/(denom),
         ))
         self.dockwidget.label_4.setText('Maior tempo contínuo de trabalho: {} min'.format(
             self.monitor.vars['greatWorkTime']
@@ -222,7 +226,6 @@ class Pomodoro:
         self.dockwidget.label_6.setText('Ocioso há: {} min'.format(
             self.monitor.vars['idleSince']
         ))
-
 
     def deleteLayoutItems(self):
         for idx in range(self.dockwidget.testeLayout.count()):
@@ -274,8 +277,7 @@ class Pomodoro:
                 child.setPixmap(self.dockwidget.sucess)
             else:
                 child.setPixmap(self.dockwidget.fail)
-
-            self.updateTextLabels()
+        self.updateTextLabels()
 
         # hbox = QHBoxLayout()
         # for _id, item in enumerate(self._thread.session['historic']):
@@ -321,8 +323,8 @@ class Pomodoro:
             self._thread.updateHistoric.connect(self.updateHistoric)
             # connect pyqtsignal from monitor
             self.monitor.updateByMonitor.connect(self.updateHistoricByMonitor)
-            #connect pyqtsignal from monitor (update statistics)
-            self.monitor.updateTickTimer.connect(self.updateHistoric)
+            # connect pyqtsignal from monitor (update statistics)
+            self.monitor.updateTickTimer.connect(self.updateTextLabels)
             # show the dockwidget
             # TODO: fix to allow choice of dock location
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)

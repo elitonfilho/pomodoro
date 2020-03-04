@@ -4,6 +4,7 @@ from qgis.core import QgsSettings
 
 class UserHistoric:
 
+    # TODO UserHistoric should be a singleton
     def __init__(self):
         self.s = QgsSettings()
         variables = ['dateLastAcess', 'sThisSession', 'fThisSession',
@@ -13,11 +14,12 @@ class UserHistoric:
         dateLastAcess = self.s.value("pomodoro/dateLastAcess", None)
         self.lastStatus = True
         self.tick = 1
+        # TODO after implementing a singleton, date.today() should be updated inside init
         if dateLastAcess == date.today().isoformat():
             self.vars = {x: self.s.value(f"pomodoro/{x}", 0) for x in variables}
         else:
             self.vars = {x: 0 for x in variables}
-        self.s.setValue('pomodoro/dateLastAcess', date.today().isoformat())
+
     # TODO setValue should be called from an unique function which receives the param name
     def updateSucess(self):
         self.vars['sThisSession'] = int(self.vars['sThisSession']) + self.tick
@@ -60,5 +62,6 @@ class UserHistoric:
         if tmpGreatIdleTime > greatIdleTime:
             self.vars['greatIdleTime'] = tmpGreatIdleTime
             self.s.setValue('pomodoro/greatIdleTime', self.vars['greatIdleTime'])
+        self.s.setValue('pomodoro/dateLastAcess', date.today().isoformat())
 
 

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, time
 from qgis.core import QgsSettings
 
 
@@ -8,17 +8,20 @@ class UserHistoric:
     def __init__(self):
         self.s = QgsSettings()
         variables = ['dateLastAcess', 'sThisSession', 'fThisSession',
-                     'sTotal', 'fTotal','workTime', 'idleTime',
+                     'sTotal', 'fTotal', 'workTime', 'idleTime',
                      'greatWorkTime', 'greatIdleTime', 'tmpGreatWorkTime',
-                     'tmpGreatIdleTime', 'idleSince']
+                     'tmpGreatIdleTime', 'idleSince', 'timeFirstAcessDay']
         dateLastAcess = self.s.value("pomodoro/dateLastAcess", None)
         self.lastStatus = True
         self.tick = 1
         # TODO after implementing a singleton, date.today() should be updated inside init
         if dateLastAcess == date.today().isoformat():
-            self.vars = {x: self.s.value(f"pomodoro/{x}", 0) for x in variables}
+            self.vars = {x: self.s.value(f"pomodoro/{x}", 0)
+                         for x in variables}
         else:
             self.vars = {x: 0 for x in variables}
+            self.vars['timeFirstAcessDay'] = datetime.time(
+                datetime.now()).isoformat(timespec='minutes')
 
     # TODO setValue should be called from an unique function which receives the param name
     def updateSucess(self):
@@ -34,17 +37,20 @@ class UserHistoric:
         self.s.setValue('pomodoro/workTime', self.vars['workTime'])
         self.vars['idleSince'] = 0
         if self.lastStatus:
-            self.vars['tmpGreatWorkTime'] = int(self.vars['tmpGreatWorkTime']) + self.tick
+            self.vars['tmpGreatWorkTime'] = int(
+                self.vars['tmpGreatWorkTime']) + self.tick
         else:
             self.vars['tmpGreatWorkTime'] = 0
         self.lastStatus = True
         self.updatelongestWorkTime()
 
     def updateIdleTime(self):
+        # TODO idleSince not updating correctly
         self.vars['idleTime'] = int(self.vars['idleTime']) + self.tick
         self.s.setValue('pomodoro/idleTime', self.vars['idleTime'])
         if not self.lastStatus:
-            self.vars['tmpGreatIdleTime'] = int(self.vars['tmpGreatIdleTime']) + self.tick
+            self.vars['tmpGreatIdleTime'] = int(
+                self.vars['tmpGreatIdleTime']) + self.tick
             self.vars['idleSince'] = self.vars['tmpGreatIdleTime']
         else:
             self.vars['tmpGreatIdleTime'] = 0
@@ -53,15 +59,16 @@ class UserHistoric:
 
     def updatelongestWorkTime(self):
         tmpGreatWorkTime, greatWorkTime, tmpGreatIdleTime, greatIdleTime = [
-            int(self.vars['tmpGreatWorkTime']), int(self.vars['greatWorkTime']),
+            int(self.vars['tmpGreatWorkTime']), int(
+                self.vars['greatWorkTime']),
             int(self.vars['tmpGreatIdleTime']), int(self.vars['greatIdleTime'])
         ]
         if tmpGreatWorkTime > greatWorkTime:
             self.vars['greatWorkTime'] = tmpGreatWorkTime
-            self.s.setValue('pomodoro/greatWorkTime', self.vars['greatWorkTime'])
+            self.s.setValue('pomodoro/greatWorkTime',
+                            self.vars['greatWorkTime'])
         if tmpGreatIdleTime > greatIdleTime:
             self.vars['greatIdleTime'] = tmpGreatIdleTime
-            self.s.setValue('pomodoro/greatIdleTime', self.vars['greatIdleTime'])
+            self.s.setValue('pomodoro/greatIdleTime',
+                            self.vars['greatIdleTime'])
         self.s.setValue('pomodoro/dateLastAcess', date.today().isoformat())
-
-

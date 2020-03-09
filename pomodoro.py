@@ -22,6 +22,7 @@
  ***************************************************************************/
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt, pyqtSlot
+from qgis.core import QgsProject
 from qgis.PyQt.QtGui import QIcon, QPixmap
 from qgis.PyQt.QtWidgets import QAction, QGraphicsGridLayout, QGraphicsScene, QLabel, QVBoxLayout, QHBoxLayout, QBoxLayout, QGridLayout
 from PyQt5 import QtCore
@@ -65,6 +66,8 @@ class Pomodoro:
 
         self._thread = HandlePomodoro()
         self.monitor = MonitorCanvas()
+        # self.monitor.start()
+        # self._thread.start()
         self.monitor.startMonitoring()
 
     def add_action(
@@ -149,6 +152,9 @@ class Pomodoro:
             text=u'Pomodoro',
             callback=self.run,
             parent=self.iface.mainWindow())
+        # TODO start monitor after QGIS loaded
+        QgsProject.instance().layersAdded.connect(self.run)
+        QgsProject.instance().readProject.connect(self.run)
 
     def onClosePlugin(self):
         """Cleanup necessary items here when plugin dockwidget is closed"""
@@ -328,6 +334,7 @@ class Pomodoro:
             # show the dockwidget
             # TODO: fix to allow choice of dock location
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
-            self.dockwidget.show()
+            # self.dockwidget.show()
             self._thread.start()
             self.monitor.start()
+            self.updateLCD()

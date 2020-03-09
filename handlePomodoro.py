@@ -10,13 +10,15 @@ class HandlePomodoro(QThread, UserHistoric):
     updateTimer = pyqtSignal(int)
     updateHistoric = pyqtSignal(list)
 
+    # TODO Start this thread just after pressing the pomodoro button
+
     def __init__(self, parent=None):
         super(HandlePomodoro, self).__init__(parent)
         self.running = True
         # TODO: Use QTimer()
-        self.duration = 1500
+        self.duration = 60
         self.today = date.today
-        self.isTimerRunning = True
+        self.isTimerRunning = False
         # TODO: use a simple array
         self.session = {
             'historic': []
@@ -32,8 +34,8 @@ class HandlePomodoro(QThread, UserHistoric):
                         if not self.duration:
                             self.triggerSuccess()
                             self.isTimerRunning = False
-                        # TODO: use QThread.sleep()
-                        time.sleep(1)
+                        QThread.sleep(1)
+                continue
 
         # timer = QTimer(self)
         # timer.setInterval(1000)
@@ -42,9 +44,9 @@ class HandlePomodoro(QThread, UserHistoric):
 
     def refreshPomodoroByButton(self, isMonitoring=True):
         # TODO: append the pixmap itself
-        if isMonitoring and self.duration:
+        if isMonitoring and self.duration and self.duration != 60:
             self.triggerFail()
-        self.duration = 1500
+        self.duration = 60
         self.isTimerRunning = True
 
     def refreshPomodoroByMonitor(self, isMonitoring=True):

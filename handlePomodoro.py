@@ -16,7 +16,7 @@ class HandlePomodoro(QThread, UserHistoric):
         super(HandlePomodoro, self).__init__(parent)
         self.running = True
         # TODO: Use QTimer()
-        self.duration = 60
+        self.duration = 1500
         self.today = date.today
         self.isTimerRunning = False
         # TODO: use a simple array
@@ -46,7 +46,7 @@ class HandlePomodoro(QThread, UserHistoric):
         # TODO: append the pixmap itself
         if isMonitoring and self.duration and self.duration != 60:
             self.triggerFail()
-        self.duration = 60
+        self.duration = 1500
         self.isTimerRunning = True
 
     def refreshPomodoroByMonitor(self, isMonitoring=True):

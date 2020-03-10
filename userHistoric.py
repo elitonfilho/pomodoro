@@ -1,4 +1,4 @@
-from datetime import date, time
+from datetime import date, time, datetime
 from qgis.core import QgsSettings
 
 
@@ -10,7 +10,7 @@ class UserHistoric:
         variables = ['dateLastAcess', 'sThisSession', 'fThisSession',
                      'sTotal', 'fTotal', 'workTime', 'idleTime',
                      'greatWorkTime', 'greatIdleTime', 'tmpGreatWorkTime',
-                     'tmpGreatIdleTime', 'idleSince', 'timeFirstAcessDay']
+                     'tmpGreatIdleTime', 'idleSince', 'timeFirstAcess']
         dateLastAcess = self.s.value("pomodoro/dateLastAcess", None)
         self.lastStatus = True
         self.tick = 1
@@ -19,9 +19,13 @@ class UserHistoric:
             self.vars = {x: self.s.value(f"pomodoro/{x}", 0)
                          for x in variables}
         else:
-            self.vars = {x: 0 for x in variables}
-            self.vars['timeFirstAcessDay'] = datetime.time(
+            self.restartVariables()
+            self.vars = {x: self.s.value(f"pomodoro/{x}", 0)
+                         for x in variables}
+            self.vars['timeFirstAcess'] = datetime.time(
                 datetime.now()).isoformat(timespec='minutes')
+            self.s.setValue('pomodoro/timeFirstAcess', self.vars['timeFirstAcess'])
+            self.s.setValue('pomodoro/dateLastAcess', date.today().isoformat())
 
     # TODO setValue should be called from an unique function which receives the param name
     def updateSucess(self):
@@ -72,3 +76,11 @@ class UserHistoric:
             self.s.setValue('pomodoro/greatIdleTime',
                             self.vars['greatIdleTime'])
         self.s.setValue('pomodoro/dateLastAcess', date.today().isoformat())
+
+    def restartVariables(self):
+        variables = ['dateLastAcess', 'sThisSession', 'fThisSession',
+                     'sTotal', 'fTotal', 'workTime', 'idleTime',
+                     'greatWorkTime', 'greatIdleTime', 'tmpGreatWorkTime',
+                     'tmpGreatIdleTime', 'idleSince', 'timeFirstAcess']
+        for item in variables:
+            self.s.setValue(f'pomodoro/{item}', 0)

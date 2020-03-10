@@ -232,6 +232,9 @@ class Pomodoro:
         self.dockwidget.label_6.setText('Ocioso há: {} min'.format(
             self.monitor.vars['idleSince']
         ))
+        self.dockwidget.label_firstAcess.setText('Primeiro acesso às: {}'.format(
+            self.monitor.vars['timeFirstAcess']
+        ))
 
     def deleteLayoutItems(self):
         for idx in range(self.dockwidget.testeLayout.count()):

@@ -8,7 +8,7 @@ class UserHistoric:
     def __init__(self):
         self.s = QgsSettings()
         variables = ['dateLastAcess', 'sThisSession', 'fThisSession',
-                     'sTotal', 'fTotal', 'workTime', 'idleTime',
+                     'workTime', 'idleTime',
                      'greatWorkTime', 'greatIdleTime', 'tmpGreatWorkTime',
                      'tmpGreatIdleTime', 'idleSince', 'timeFirstAcess']
         dateLastAcess = self.s.value("pomodoro/dateLastAcess", None)
@@ -79,7 +79,7 @@ class UserHistoric:
 
     def restartVariables(self):
         variables = ['dateLastAcess', 'sThisSession', 'fThisSession',
-                     'sTotal', 'fTotal', 'workTime', 'idleTime',
+                     'workTime', 'idleTime',
                      'greatWorkTime', 'greatIdleTime', 'tmpGreatWorkTime',
                      'tmpGreatIdleTime', 'idleSince', 'timeFirstAcess']
         for item in variables:

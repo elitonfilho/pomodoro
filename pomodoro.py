@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 /***************************************************************************
  Pomodoro
@@ -11,21 +10,10 @@
         copyright            : (C) 2020 by Eliton
         email                : eliton.filho@eb.mil.br
  ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt, pyqtSlot
-from qgis.core import QgsProject
-from qgis.PyQt.QtGui import QIcon, QPixmap
-from qgis.PyQt.QtWidgets import QAction, QGraphicsGridLayout, QGraphicsScene, QLabel, QVBoxLayout, QHBoxLayout, QBoxLayout, QGridLayout
-from PyQt5 import QtCore
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QAction, QLabel, QHBoxLayout
 # Initialize Qt resources from file resources.py
 from .resources import *
 
@@ -152,9 +140,8 @@ class Pomodoro:
             text=u'Pomodoro',
             callback=self.run,
             parent=self.iface.mainWindow())
-        # TODO start monitor after QGIS loaded
-        QgsProject.instance().layersAdded.connect(self.run)
-        QgsProject.instance().readProject.connect(self.run)
+        # Calls run() when initialization is complete
+        self.iface.initializationCompleted.connect(self.run)
 
     def handleVisibility(self):
         if self.dockwidget and not self.pluginIsActive:

@@ -34,9 +34,9 @@ class HandlePomodoro(QThread, UserHistoric):
                         if not self.duration:
                             self.triggerSuccess()
                             self.isTimerRunning = False
-                        QThread.sleep(1)
+                    QThread.sleep(1)
             else:
-                # Qthread.sleep(1)
+                QThread.sleep(1)
                 continue
 
         # timer = QTimer(self)

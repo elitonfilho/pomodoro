@@ -156,27 +156,33 @@ class Pomodoro:
         QgsProject.instance().layersAdded.connect(self.run)
         QgsProject.instance().readProject.connect(self.run)
 
+    def handleVisibility(self):
+        if self.dockwidget and not self.pluginIsActive:
+            self.dockwidget.show()
+
+    def handleSignals(self):
+        # Triggers onClosePlugin when dockwidget is closed
+        self.dockwidget.closingPlugin.connect(self.onClosePlugin)
+        # Triggers updateHistoricByButton when button is pressed
+        self.dockwidget.pushButton.clicked.connect(
+            self.updateHistoricByButton)
+        # Connect pyqtsignal to refresh screen
+        self._thread.updateTimer.connect(self.updateLCD)
+        # Connect pyqtsignal to refresh historic
+        self._thread.updateHistoric.connect(self.updateHistoric)
+        # Connect pyqtsignal from monitor
+        self.monitor.updateByMonitor.connect(self.updateHistoricByMonitor)
+        # Connect pyqtsignal from monitor (update statistics)
+        self.monitor.updateTickTimer.connect(self.updateTextLabels)
+
     def onClosePlugin(self):
         """Cleanup necessary items here when plugin dockwidget is closed"""
-
-        # disconnects
-        self.dockwidget.closingPlugin.disconnect(self.onClosePlugin)
-
-        # remove this statement if dockwidget is to remain
-        # for reuse if plugin is reopened
-        # Commented next statement since it causes QGIS crashe
-        # when closing the docked window:
-        # self.dockwidget = None
-
         self.pluginIsActive = False
-        self._thread.terminate()
-        self.monitor.terminate()
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         self._thread.terminate()
         self.monitor.terminate()
-        # #print "** UNLOAD Pomodoro"
 
         # for action in self.actions:
         #     self.iface.removePluginMenu(
@@ -189,7 +195,6 @@ class Pomodoro:
     def onStart(self):
         """Starts the thread"""
         self._thread.start()
-        # print('main id', int(QtCore.QThread.currentThreadId()))
 
     def closeEvent(self, event):
         if self._thread.isRunning():
@@ -300,44 +305,36 @@ class Pomodoro:
         # self.dockwidget.label.setLayout(hbox)
 
     def updateHistoricByMonitor(self):
+        '''Triggered by MonitorCanvas'''
         if self._thread.isTimerRunning:
             self._thread.refreshPomodoroByMonitor(self.monitor.isMonitoring)
             self.monitor.stopMonitoring()
 
     def updateHistoricByButton(self):
+        '''Triggered when Novo Pomodoro button is pressed'''
         self._thread.refreshPomodoroByButton(self.monitor.isMonitoring)
         self.monitor.startMonitoring()
 
     def run(self):
         """Run method that loads and starts the plugin"""
 
+        self.handleVisibility()
+
         if not self.pluginIsActive:
             self.pluginIsActive = True
-
-            # dockwidget may not exist if:
-            #    first run of plugin
-            #    removed on close (see self.onClosePlugin method)
             if self.dockwidget == None:
-                # Create the dockwidget (after translation) and keep reference
+                # Create the dockwidget and keep reference
                 self.dockwidget = PomodoroDockWidget()
+            # Connect signals
+            self.handleSignals()
+            # Updates LCD and statistics
             self.updateTextLabels()
-            # connect to provide cleanup on closing of dockwidget
-            self.dockwidget.closingPlugin.connect(self.onClosePlugin)
-            # connect button to refresh Pomodoro
-            self.dockwidget.pushButton.clicked.connect(
-                self.updateHistoricByButton)
-            # connect pyqtsignal to refresh screen
-            self._thread.updateTimer.connect(self.updateLCD)
-            # connect pyqtsignal to refresh historic
-            self._thread.updateHistoric.connect(self.updateHistoric)
-            # connect pyqtsignal from monitor
-            self.monitor.updateByMonitor.connect(self.updateHistoricByMonitor)
-            # connect pyqtsignal from monitor (update statistics)
-            self.monitor.updateTickTimer.connect(self.updateTextLabels)
+            self.updateLCD()
+
+            # Starts Threads
+            self._thread.start()
+            self.monitor.start()
+
             # show the dockwidget
             # TODO: fix to allow choice of dock location
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
-            # self.dockwidget.show()
-            self._thread.start()
-            self.monitor.start()
-            self.updateLCD()
